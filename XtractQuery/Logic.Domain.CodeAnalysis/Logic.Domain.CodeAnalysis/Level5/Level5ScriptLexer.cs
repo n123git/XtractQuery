@@ -118,11 +118,17 @@ internal class Level5ScriptLexer : ILexer<Level5SyntaxToken>
                 if (IsPeekedChar(1, '='))
                     return new Level5SyntaxToken(SyntaxTokenKind.AndEquals, Position, Line, Column, $"{ReadChar()}{ReadChar()}");
 
+                if (IsPeekedChar(1, '&'))
+                    return new Level5SyntaxToken(SyntaxTokenKind.AndAnd, Position, Line, Column, $"{ReadChar()}{ReadChar()}");
+
                 return new Level5SyntaxToken(SyntaxTokenKind.And, Position, Line, Column, $"{ReadChar()}");
 
             case '|':
                 if (IsPeekedChar(1, '='))
                     return new Level5SyntaxToken(SyntaxTokenKind.OrEquals, Position, Line, Column, $"{ReadChar()}{ReadChar()}");
+
+                if (IsPeekedChar(1, '|'))
+                    return new Level5SyntaxToken(SyntaxTokenKind.OrOr, Position, Line, Column, $"{ReadChar()}{ReadChar()}");
 
                 return new Level5SyntaxToken(SyntaxTokenKind.Or, Position, Line, Column, $"{ReadChar()}");
 

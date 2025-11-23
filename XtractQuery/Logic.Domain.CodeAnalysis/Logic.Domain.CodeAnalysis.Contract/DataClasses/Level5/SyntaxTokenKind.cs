@@ -15,7 +15,9 @@ public enum SyntaxTokenKind
     Div,
     Mod,
     And,
+    AndAnd,
     Or,
+    OrOr,
     Xor,
 
     Equals,

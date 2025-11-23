@@ -389,10 +389,12 @@ internal class XseqCodeUnitConverter : IXseqCodeUnitConverter
                 switch (logicalExpression.Operation.RawKind)
                 {
                     case (int)SyntaxTokenKind.AndKeyword:
+                    case (int)SyntaxTokenKind.AndAnd:
                         instructionType = 121;
                         break;
 
                     case (int)SyntaxTokenKind.OrKeyword:
+                    case (int)SyntaxTokenKind.OrOr:
                         instructionType = 122;
                         break;
 

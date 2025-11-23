@@ -556,7 +556,9 @@ internal class Level5ScriptParser : ILevel5ScriptParser
     private bool IsLogicalExpression(IBuffer<Level5SyntaxToken> buffer)
     {
         return HasTokenKind(buffer, SyntaxTokenKind.AndKeyword) ||
-               HasTokenKind(buffer, SyntaxTokenKind.OrKeyword);
+               HasTokenKind(buffer, SyntaxTokenKind.OrKeyword) ||
+               HasTokenKind(buffer, SyntaxTokenKind.AndAnd) ||
+               HasTokenKind(buffer, SyntaxTokenKind.OrOr);
     }
 
     private LogicalExpressionSyntax ParseLogicalExpression(IBuffer<Level5SyntaxToken> buffer, ExpressionSyntax left)
@@ -566,8 +568,14 @@ internal class Level5ScriptParser : ILevel5ScriptParser
             case SyntaxTokenKind.AndKeyword:
                 return new LogicalExpressionSyntax(left, ParseAndKeywordToken(buffer), ParseExpression(buffer));
 
+            case SyntaxTokenKind.AndAnd:
+                return new LogicalExpressionSyntax(left, ParseAndAndToken(buffer), ParseExpression(buffer));
+
             case SyntaxTokenKind.OrKeyword:
                 return new LogicalExpressionSyntax(left, ParseOrKeywordToken(buffer), ParseExpression(buffer));
+
+            case SyntaxTokenKind.OrOr:
+                return new LogicalExpressionSyntax(left, ParseOrOrToken(buffer), ParseExpression(buffer));
 
             default:
                 throw CreateException(buffer, "Unknown logical expression.", SyntaxTokenKind.AndKeyword, SyntaxTokenKind.OrKeyword);
@@ -1002,9 +1010,19 @@ internal class Level5ScriptParser : ILevel5ScriptParser
         return CreateToken(buffer, SyntaxTokenKind.And);
     }
 
+    private SyntaxToken ParseAndAndToken(IBuffer<Level5SyntaxToken> buffer)
+    {
+        return CreateToken(buffer, SyntaxTokenKind.AndAnd);
+    }
+
     private SyntaxToken ParseOrToken(IBuffer<Level5SyntaxToken> buffer)
     {
         return CreateToken(buffer, SyntaxTokenKind.Or);
+    }
+
+    private SyntaxToken ParseOrOrToken(IBuffer<Level5SyntaxToken> buffer)
+    {
+        return CreateToken(buffer, SyntaxTokenKind.OrOr);
     }
 
     private SyntaxToken ParseXorToken(IBuffer<Level5SyntaxToken> buffer)

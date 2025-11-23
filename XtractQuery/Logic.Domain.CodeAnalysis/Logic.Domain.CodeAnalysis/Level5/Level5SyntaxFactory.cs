@@ -29,7 +29,9 @@ internal class Level5SyntaxFactory : ILevel5SyntaxFactory
             case SyntaxTokenKind.Div: return new("/", (int)kind);
             case SyntaxTokenKind.Mod: return new("%", (int)kind);
             case SyntaxTokenKind.And: return new("&", (int)kind);
+            case SyntaxTokenKind.AndAnd: return new("&&", (int)kind);
             case SyntaxTokenKind.Or: return new("|", (int)kind);
+            case SyntaxTokenKind.OrOr: return new("||", (int)kind);
             case SyntaxTokenKind.Xor: return new("^", (int)kind);
 
             case SyntaxTokenKind.Equals: return new("==", (int)kind);
