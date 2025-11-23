@@ -83,7 +83,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | 30 | If the value equates to ``true``, jump to the label in the current function.<br>```if 1 goto "Label1"h;```<br>```if $variable0 goto "Label1"h;``` |
 | 31 | Unconditionally jump to the label in the current function. Multiple labels can be provided when written as `sub31("Label1"h, "Label2"h, ...)`. The instruction then unconditionally jumps to one random label. <br>```goto "Label1"h;```<br>```sub32("Label1"h, "Label2"h, ...) // jumps to a random label``` |
 | 32 | If the value equates to ``true``, jump to the label in the current function.<br>```if 0 goto "Label1"h;```<br>```if $variable0 goto "Label1"h;``` |
-| 33 | If the negated value equates to ``true``, jump to the label in the current function.<br>```if not 0 goto "Label1"h;```<br>```if not $variable0 goto "Label1"h;``` |
+| 33 | If the negated value equates to ``true``, jump to the label in the current function.<br>Decompilation prefers the operator `not`.<br>Compilation accepts operators `not` and `!`.<br>```if not 0 goto "Label1"h;```<br>```if not $variable0 goto "Label1"h;``` |
 > Note: Differences between instruction 30 and instruction 32 are unclear.
 
 #### Basic assignments and operations
@@ -135,7 +135,7 @@ Everything after the number will be ignored for compilation and follows no speci
 #### Booleans
 | Type | Description |
 | - | - |
-| 120 | Coerces a literal value or variable to boolean and negates it.<br>```$local1 = not $local2;``` |
+| 120 | Coerces a literal value or variable to boolean and negates it.<br>Decompilation prefers the operator `not`.<br>Compilation accepts operators `not` and `!`.<br>```$local1 = not $local2;``` |
 | 121 | Coerces two literal values or variables to boolean and runs a logical AND operation on them.<br>Decompilation prefers the operator `and`.<br>Compilation accepts operators `and` and `&&`.<br>```$local1 = 1 and 1;```<br>```$local1 = $local2 and 1;```<br>```$local1 = $local2 and $local3;``` |
 | 122 | Coerces two literal values or variables to boolean and runs a logical OR operation on them.<br>Decompilation prefers the operator `or`.<br>Compilation accepts operators `or` and `||`.<br>```$local1 = 1 or 1;```<br>```$local1 = $local2 or 1;```<br>```$local1 = $local2 or $local3;``` |
 
