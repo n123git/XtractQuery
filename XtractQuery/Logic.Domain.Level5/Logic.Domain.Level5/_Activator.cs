@@ -61,6 +61,7 @@ public class Level5Activator : IComponentActivator
         kernel.Register<IXq32ScriptReader, Xq32ScriptReader>(ActivationScope.Unique);
         kernel.Register<IXq32ScriptWriter, Xq32ScriptWriter>(ActivationScope.Unique);
         kernel.Register<IXq32ScriptEntrySizeProvider, Xq32ScriptEntrySizeProvider>(ActivationScope.Unique);
+        kernel.Register<IXq32FunctionCache, Xq32FunctionCache>(ActivationScope.Unique);
 
         kernel.Register<IXq32StringTable, Xq32StringTable>();
 
@@ -69,6 +70,7 @@ public class Level5Activator : IComponentActivator
         kernel.Register<IXseqScriptReader, XseqScriptReader>(ActivationScope.Unique);
         kernel.Register<IXseqScriptWriter, XseqScriptWriter>(ActivationScope.Unique);
         kernel.Register<IXseqScriptEntrySizeProvider, XseqScriptEntrySizeProvider>(ActivationScope.Unique);
+        kernel.Register<IXseqFunctionCache, XseqFunctionCache>(ActivationScope.Unique);
 
         kernel.Register<IXseqStringTable, XseqStringTable>();
 
@@ -76,6 +78,7 @@ public class Level5Activator : IComponentActivator
         kernel.Register<IGss1ScriptParser, Gss1ScriptParser>(ActivationScope.Unique);
         kernel.Register<IGss1ScriptComposer, Gss1ScriptComposer>(ActivationScope.Unique);
         kernel.Register<IGss1ScriptWriter, Gss1ScriptWriter>(ActivationScope.Unique);
+        kernel.Register<IGss1FunctionCache, Gss1FunctionCache>(ActivationScope.Unique);
 
         kernel.Register<IGsd1ScriptReader, Gsd1ScriptReader>(ActivationScope.Unique);
         kernel.Register<IGsd1ScriptParser, Gsd1ScriptParser>(ActivationScope.Unique);

@@ -196,7 +196,7 @@ class Gss1ScriptComposer(IChecksumFactory checksumFactory) : IGss1ScriptComposer
             case ScriptArgumentType.StringHash:
                 type = 2;
                 if (argument.Value is string stringValue)
-                    value = _checksum.ComputeValue(stringValue);
+                    value = _checksum.ComputeValue(stringValue.Split('.')[^1]);
                 else
                     value = (uint)argument.Value;
 

@@ -540,7 +540,7 @@ internal class Gss1CodeUnitConverter : IGss1CodeUnitConverter
                 break;
 
             case MethodInvocationExpressionSyntax methodInvocation:
-                instructionType = GetInstructionType(methodInvocation.Identifier, out bool isMethodTransfer);
+                instructionType = GetInstructionType(methodInvocation.Name, out bool isMethodTransfer);
 
                 if (isMethodTransfer)
                 {
@@ -552,7 +552,7 @@ internal class Gss1CodeUnitConverter : IGss1CodeUnitConverter
                         argumentType = ScriptArgumentType.String;
                     }
 
-                    AddArgument(result, argumentType, methodInvocation.Identifier.Text, rawArgumentType);
+                    AddArgument(result, argumentType, GetName(methodInvocation.Name), rawArgumentType);
                 }
 
                 if (methodInvocation.Parameters.ParameterList != null)
@@ -565,15 +565,17 @@ internal class Gss1CodeUnitConverter : IGss1CodeUnitConverter
         }
     }
 
-    private int GetInstructionType(SyntaxToken identifier, out bool isMethodTransfer)
+    private int GetInstructionType(NameSyntax name, out bool isMethodTransfer)
     {
         isMethodTransfer = false;
 
-        if (_subPattern.IsMatch(identifier.Text))
-            return GetNumberFromStringEnd(identifier.Text);
+        string composedName = GetName(name);
 
-        if (_methodNameMapper.MapsMethodName(identifier.Text))
-            return _methodNameMapper.GetInstructionType(identifier.Text);
+        if (_subPattern.IsMatch(composedName))
+            return GetNumberFromStringEnd(composedName);
+
+        if (_methodNameMapper.MapsMethodName(composedName))
+            return _methodNameMapper.GetInstructionType(composedName);
 
         isMethodTransfer = true;
         return 20;
@@ -702,6 +704,21 @@ internal class Gss1CodeUnitConverter : IGss1CodeUnitConverter
 
             default:
                 throw CreateException($"Invalid variable type \"{varName}\".", variable.Location);
+        }
+    }
+
+    private string GetName(NameSyntax name)
+    {
+        switch (name)
+        {
+            case SimpleNameSyntax simpleName:
+                return simpleName.Identifier.Text;
+
+            case QualifiedNameSyntax qualifiedName:
+                return GetName(qualifiedName.Left) + "." + GetName(qualifiedName.Right);
+
+            default:
+                throw CreateException("Invalid name syntax.", name.Location);
         }
     }
 

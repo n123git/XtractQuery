@@ -2,6 +2,7 @@
 
 public enum SyntaxTokenKind
 {
+    Dot,
     Comma,
     Colon,
     Semicolon,

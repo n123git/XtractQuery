@@ -12,6 +12,7 @@ namespace Logic.Business.Level5ScriptManagement.Extraction;
 class ExtractGss1Workflow(
     ScriptManagementConfiguration config,
     IScriptTypeReader typeReader,
+    IGss1FunctionCache functionCache,
     IGss1ScriptReader scriptReader,
     IGss1ScriptParser scriptParser,
     IGss1ScriptFileConverter scriptConverter,
@@ -45,7 +46,7 @@ class ExtractGss1Workflow(
 
     private void PopulateStringHashCache()
     {
-        if (!_isPopulated)
+        if (_isPopulated)
             return;
 
         string referenceDir = config.ReferenceScriptPath;
@@ -62,6 +63,11 @@ class ExtractGss1Workflow(
 
         foreach (string scriptFile in Directory.GetFiles(referenceDir, "*.cq", SearchOption.AllDirectories))
         {
+            string relativePath = Path.GetRelativePath(referenceDir, scriptFile);
+            string? relativeDir = Path.GetDirectoryName(relativePath);
+            string relativeFileName = Path.GetFileNameWithoutExtension(scriptFile);
+            string relativeName = string.IsNullOrEmpty(relativeDir) ? relativeFileName : Path.Combine(relativeDir, relativeFileName);
+
             using Stream scriptStream = File.OpenRead(scriptFile);
             ScriptType type = typeReader.Peek(scriptStream);
 
@@ -69,7 +75,13 @@ class ExtractGss1Workflow(
                 continue;
 
             Gss1ScriptContainer container = scriptReader.Read(scriptStream);
-            scriptParser.ParseFunctions(container.Functions, container.Strings);
+            IList<ScriptFunction> functions = scriptParser.ParseFunctions(container.Functions, container.Strings);
+
+            foreach (ScriptFunction function in functions)
+            {
+                if (!functionCache.TryAdd(relativeName, function.Name))
+                    Console.WriteLine($"Could not cache function {function.Name} from script {relativePath}.");
+            }
         }
 
         _isPopulated = true;

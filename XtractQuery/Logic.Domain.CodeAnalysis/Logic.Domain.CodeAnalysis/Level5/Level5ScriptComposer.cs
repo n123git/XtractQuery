@@ -316,7 +316,7 @@ internal class Level5ScriptComposer : ILevel5ScriptComposer
 
     private void ComposeMethodInvocationStatement(MethodInvocationStatementSyntax invocation, StringBuilder sb)
     {
-        ComposeSyntaxToken(invocation.Identifier, sb);
+        ComposeName(invocation.Name, sb);
         ComposeMethodInvocationMetadata(invocation.Metadata, sb);
         ComposeMethodInvocationParameters(invocation.Parameters, sb);
         ComposeSyntaxToken(invocation.Semicolon, sb);
@@ -482,7 +482,7 @@ internal class Level5ScriptComposer : ILevel5ScriptComposer
 
     private void ComposeMethodInvocationExpression(MethodInvocationExpressionSyntax invocation, StringBuilder sb)
     {
-        ComposeSyntaxToken(invocation.Identifier, sb);
+        ComposeName(invocation.Name, sb);
         ComposeMethodInvocationMetadata(invocation.Metadata, sb);
         ComposeMethodInvocationParameters(invocation.Parameters, sb);
     }
@@ -542,6 +542,32 @@ internal class Level5ScriptComposer : ILevel5ScriptComposer
         ComposeSyntaxToken(valueMetadataParameters.RelSmaller, sb);
         ComposeLiteralExpression(valueMetadataParameters.Parameter, sb);
         ComposeSyntaxToken(valueMetadataParameters.RelBigger, sb);
+    }
+
+    private void ComposeName(NameSyntax name, StringBuilder sb)
+    {
+        switch (name)
+        {
+            case SimpleNameSyntax simpleName:
+                ComposeSimpleName(simpleName, sb);
+                break;
+
+            case QualifiedNameSyntax qualifiedName:
+                ComposeQualifiedName(qualifiedName, sb);
+                break;
+        }
+    }
+
+    private void ComposeSimpleName(SimpleNameSyntax name, StringBuilder sb)
+    {
+        ComposeSyntaxToken(name.Identifier, sb);
+    }
+
+    private void ComposeQualifiedName(QualifiedNameSyntax name, StringBuilder sb)
+    {
+        ComposeName(name.Left, sb);
+        ComposeSyntaxToken(name.Dot, sb);
+        ComposeName(name.Right, sb);
     }
 
     private void ComposeSyntaxToken(SyntaxToken token, StringBuilder sb)

@@ -163,6 +163,11 @@ internal class Level5ScriptLexer : ILexer<Level5SyntaxToken>
                 return ReadStringLiteral();
 
             case '.':
+                if (TryPeekChar(1, out character) && character is >= '0' and <= '9')
+                    goto case '0';
+                
+                return new Level5SyntaxToken(SyntaxTokenKind.Dot, Position, Line, Column, $"{ReadChar()}");
+
             case '0':
             case '1':
             case '2':

@@ -1,12 +1,12 @@
-﻿using System.Text;
-using Komponent.IO;
+﻿using Komponent.IO;
 using Logic.Domain.Level5.Contract.DataClasses.Script;
 using Logic.Domain.Level5.Contract.DataClasses.Script.Gss1;
 using Logic.Domain.Level5.Contract.Script.Gss1;
+using System.Text;
 
 namespace Logic.Domain.Level5.Script.Gss1;
 
-internal class Gss1ScriptParser(IGss1ScriptReader reader) : IGss1ScriptParser
+internal class Gss1ScriptParser(IGss1ScriptReader reader, IGss1FunctionCache functionCache) : IGss1ScriptParser
 {
     private static readonly Encoding SjisEncoding = Encoding.GetEncoding("Shift-JIS");
 
@@ -34,12 +34,16 @@ internal class Gss1ScriptParser(IGss1ScriptReader reader) : IGss1ScriptParser
 
     public IList<ScriptFunction> ParseFunctions(Gss1Function[] functions, ScriptStringTable? strings = null)
     {
+        _functionCache.Clear();
+
         using BinaryReaderX? stringReader = strings is null ? null : new BinaryReaderX(strings.Stream, SjisEncoding, true);
         return ParseFunctions(functions, stringReader, strings?.BaseOffset ?? 0);
     }
 
     public IList<ScriptJump> ParseJumps(Gss1Jump[] jumps, ScriptStringTable? strings = null)
     {
+        _jumpCache.Clear();
+
         using BinaryReaderX? stringReader = strings is null ? null : new BinaryReaderX(strings.Stream, SjisEncoding, true);
         return ParseJumps(jumps, stringReader, strings?.BaseOffset ?? 0);
     }
@@ -148,9 +152,15 @@ internal class Gss1ScriptParser(IGss1ScriptReader reader) : IGss1ScriptParser
 
                 if (argumentIndex != 0)
                 {
-                    if (_functionCache.TryGetValue((ushort)argument.value, out HashSet<string>? names)
-                        || _jumpCache.TryGetValue((ushort)argument.value, out names))
+                    if (_functionCache.TryGetValue((ushort)argument.value, out HashSet<string>? names) ||
+                        _jumpCache.TryGetValue((ushort)argument.value, out names))
+                    {
                         value = names.First();
+                    }
+                    else if (functionCache.TryResolve((ushort)argument.value, out string? cachedName))
+                    {
+                        value = cachedName;
+                    }
                     break;
                 }
 
@@ -159,13 +169,15 @@ internal class Gss1ScriptParser(IGss1ScriptReader reader) : IGss1ScriptParser
                     case 20:
                         if (_functionCache.TryGetValue((ushort)argument.value, out HashSet<string>? names))
                             value = names.First();
+                        else if (functionCache.TryResolve((ushort)argument.value, out string? cachedName))
+                            value = cachedName;
                         break;
 
                     case 30:
                     case 31:
                     case 33:
-                        if (_jumpCache.TryGetValue((ushort)argument.value, out names))
-                            value = names.First();
+                        if (_jumpCache.TryGetValue((ushort)argument.value, out HashSet<string>? names1))
+                            value = names1.First();
                         break;
                 }
 

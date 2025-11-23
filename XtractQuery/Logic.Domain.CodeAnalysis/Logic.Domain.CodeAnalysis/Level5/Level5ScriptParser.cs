@@ -1,7 +1,6 @@
 ﻿using Logic.Domain.CodeAnalysis.Contract;
 using Logic.Domain.CodeAnalysis.Contract.DataClasses;
 using Logic.Domain.CodeAnalysis.Contract.DataClasses.Level5;
-using Logic.Domain.CodeAnalysis.Contract.Exceptions;
 using Logic.Domain.CodeAnalysis.Contract.Exceptions.Level5;
 using Logic.Domain.CodeAnalysis.Contract.Level5;
 using Logic.Domain.CodeAnalysis.DataClasses.Level5;
@@ -435,7 +434,7 @@ internal class Level5ScriptParser : ILevel5ScriptParser
             return ParseUnaryExpression(buffer);
 
         if (HasTokenKind(buffer, SyntaxTokenKind.Identifier)
-            && (HasTokenKind(buffer, 1, SyntaxTokenKind.ParenOpen) || HasTokenKind(buffer, 1, SyntaxTokenKind.Smaller)))
+            && (HasTokenKind(buffer, 1, SyntaxTokenKind.ParenOpen) || HasTokenKind(buffer, 1, SyntaxTokenKind.Dot) || HasTokenKind(buffer, 1, SyntaxTokenKind.Smaller)))
             return ParseMethodInvocationExpression(buffer);
 
         ExpressionSyntax left;
@@ -709,21 +708,21 @@ internal class Level5ScriptParser : ILevel5ScriptParser
 
     private MethodInvocationExpressionSyntax ParseMethodInvocationExpression(IBuffer<Level5SyntaxToken> buffer)
     {
-        SyntaxToken identifier = ParseIdentifierToken(buffer);
+        NameSyntax name = ParseName(buffer);
         var metadata = ParseMethodInvocationMetadata(buffer);
         var methodInvocationParameters = ParseMethodInvocationParameters(buffer);
 
-        return new MethodInvocationExpressionSyntax(identifier, metadata, methodInvocationParameters);
+        return new MethodInvocationExpressionSyntax(name, metadata, methodInvocationParameters);
     }
 
     private MethodInvocationStatementSyntax ParseMethodInvocationStatement(IBuffer<Level5SyntaxToken> buffer)
     {
-        SyntaxToken identifier = ParseIdentifierToken(buffer);
+        NameSyntax name = ParseName(buffer);
         var metadata = ParseMethodInvocationMetadata(buffer);
         var methodInvocationParameters = ParseMethodInvocationParameters(buffer);
         SyntaxToken semicolon = ParseSemicolonToken(buffer);
 
-        return new MethodInvocationStatementSyntax(identifier, metadata, methodInvocationParameters, semicolon);
+        return new MethodInvocationStatementSyntax(name, metadata, methodInvocationParameters, semicolon);
     }
 
     private MethodInvocationMetadataSyntax? ParseMethodInvocationMetadata(IBuffer<Level5SyntaxToken> buffer)
@@ -877,6 +876,25 @@ internal class Level5ScriptParser : ILevel5ScriptParser
         SyntaxToken variable = ParseVariableToken(buffer);
 
         return new VariableExpressionSyntax(variable);
+    }
+
+    private NameSyntax ParseName(IBuffer<Level5SyntaxToken> buffer)
+    {
+        if (!HasTokenKind(buffer, SyntaxTokenKind.Identifier))
+            throw CreateException(buffer, "Invalid name syntax.", SyntaxTokenKind.Identifier);
+
+        NameSyntax left = new SimpleNameSyntax(ParseIdentifierToken(buffer));
+        if (!HasTokenKind(buffer, SyntaxTokenKind.Dot))
+            return left;
+
+        SyntaxToken dot = ParseDotToken(buffer);
+
+        return new QualifiedNameSyntax(left, dot, ParseName(buffer));
+    }
+
+    private SyntaxToken ParseDotToken(IBuffer<Level5SyntaxToken> buffer)
+    {
+        return CreateToken(buffer, SyntaxTokenKind.Dot);
     }
 
     private SyntaxToken ParseCommaToken(IBuffer<Level5SyntaxToken> buffer)

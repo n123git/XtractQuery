@@ -74,7 +74,7 @@ internal class XscrScriptFileConverter : IXscrScriptFileConverter
 
     private MethodInvocationStatementSyntax CreateMethodInvocationExpression(XscrScriptInstruction instruction, XscrScriptFile script)
     {
-        SyntaxToken identifier = CreateMethodNameIdentifier(instruction);
+        NameSyntax identifier = CreateMethodNameIdentifier(instruction);
         var metadata = CreateMethodInvocationMetadata(instruction, script);
         var parameters = CreateMethodInvocationExpressionParameters(instruction, script);
         SyntaxToken semicolon = _syntaxFactory.Token(SyntaxTokenKind.Semicolon);
@@ -82,15 +82,15 @@ internal class XscrScriptFileConverter : IXscrScriptFileConverter
         return new MethodInvocationStatementSyntax(identifier, metadata, parameters, semicolon);
     }
 
-    private SyntaxToken CreateMethodNameIdentifier(XscrScriptInstruction instruction)
+    private NameSyntax CreateMethodNameIdentifier(XscrScriptInstruction instruction)
     {
         if (_methodNameMapper.MapsInstructionType(instruction.Type))
         {
             string mappedMethod = _methodNameMapper.GetMethodName(instruction.Type);
-            return _syntaxFactory.Identifier(mappedMethod);
+            return CreateName(mappedMethod);
         }
 
-        return _syntaxFactory.Identifier($"sub{instruction.Type}");
+        return CreateName($"sub{instruction.Type}");
     }
 
     private MethodInvocationMetadataSyntax? CreateMethodInvocationMetadata(XscrScriptInstruction instruction, XscrScriptFile script)
@@ -240,5 +240,23 @@ internal class XscrScriptFileConverter : IXscrScriptFileConverter
     private LiteralExpressionSyntax CreateStringLiteralExpression(string value)
     {
         return new LiteralExpressionSyntax(_syntaxFactory.StringLiteral(value));
+    }
+
+    private NameSyntax CreateName(string name)
+    {
+        if (name.Contains('.'))
+            return new SimpleNameSyntax(_syntaxFactory.Identifier(name));
+
+        NameSyntax? result = null;
+
+        foreach (string part in name.Split('.').Reverse())
+        {
+            if (result is null)
+                result = new SimpleNameSyntax(_syntaxFactory.Identifier(part));
+            else
+                result = new QualifiedNameSyntax(new SimpleNameSyntax(_syntaxFactory.Identifier(part)), _syntaxFactory.Token(SyntaxTokenKind.Dot), result);
+        }
+
+        return result!;
     }
 }

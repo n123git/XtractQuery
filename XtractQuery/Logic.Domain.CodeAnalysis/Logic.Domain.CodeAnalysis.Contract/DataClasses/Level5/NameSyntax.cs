@@ -1,3 +1,3 @@
 ﻿namespace Logic.Domain.CodeAnalysis.Contract.DataClasses.Level5;
 
-public abstract class StatementSyntax : SyntaxNode;
+public abstract class NameSyntax : SyntaxNode;

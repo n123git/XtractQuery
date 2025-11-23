@@ -1,16 +1,17 @@
-﻿using Logic.Business.Level5ScriptManagement.InternalContract.Extraction;
+﻿using Logic.Business.Level5ScriptManagement.InternalContract.Conversion;
+using Logic.Business.Level5ScriptManagement.InternalContract.Extraction;
+using Logic.Domain.CodeAnalysis.Contract.DataClasses.Level5;
 using Logic.Domain.CodeAnalysis.Contract.Level5;
+using Logic.Domain.Level5.Contract.DataClasses.Script;
 using Logic.Domain.Level5.Contract.Script;
 using Logic.Domain.Level5.Contract.Script.Xseq;
-using Logic.Business.Level5ScriptManagement.InternalContract.Conversion;
-using Logic.Domain.Level5.Contract.DataClasses.Script;
-using Logic.Domain.CodeAnalysis.Contract.DataClasses.Level5;
 
 namespace Logic.Business.Level5ScriptManagement.Extraction;
 
 class ExtractXseqWorkflow(
     ScriptManagementConfiguration config,
     IScriptTypeReader typeReader,
+    IXseqFunctionCache functionCache,
     IXseqScriptDecompressor scriptDecompressor,
     IXseqScriptReader scriptReader,
     IXseqScriptFileConverter scriptConverter,
@@ -44,7 +45,7 @@ class ExtractXseqWorkflow(
 
     private void PopulateStringHashCache()
     {
-        if (!_isPopulated)
+        if (_isPopulated)
             return;
 
         string referenceDir = config.ReferenceScriptPath;
@@ -61,6 +62,11 @@ class ExtractXseqWorkflow(
 
         foreach (string scriptFile in Directory.GetFiles(referenceDir, "*.xq", SearchOption.AllDirectories))
         {
+            string relativePath = Path.GetRelativePath(referenceDir, scriptFile);
+            string? relativeDir = Path.GetDirectoryName(relativePath);
+            string relativeFileName = Path.GetFileNameWithoutExtension(scriptFile);
+            string relativeName = string.IsNullOrEmpty(relativeDir) ? relativeFileName : Path.Combine(relativeDir, relativeFileName);
+
             using Stream scriptStream = File.OpenRead(scriptFile);
             ScriptType type = typeReader.Peek(scriptStream);
 
@@ -70,7 +76,13 @@ class ExtractXseqWorkflow(
             CompressedScriptTable functionTable = scriptDecompressor.DecompressFunctions(scriptStream);
             CompressedScriptStringTable stringTable = scriptDecompressor.DecompressStrings(scriptStream);
 
-            scriptReader.ReadFunctions(functionTable, stringTable);
+            IList<ScriptFunction> functions = scriptReader.ReadFunctions(functionTable, stringTable);
+
+            foreach (ScriptFunction function in functions)
+            {
+                if (!functionCache.TryAdd(relativeName, function.Name))
+                    Console.WriteLine($"Could not cache function {function.Name} from script {relativePath}.");
+            }
         }
 
         _isPopulated = true;

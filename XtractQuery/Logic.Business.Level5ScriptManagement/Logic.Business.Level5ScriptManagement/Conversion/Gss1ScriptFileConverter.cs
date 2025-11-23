@@ -693,25 +693,25 @@ internal class Gss1ScriptFileConverter : IGss1ScriptFileConverter
 
     private MethodInvocationExpressionSyntax CreateMethodInvocationExpression(ScriptInstruction instruction, Gss1ScriptFile script)
     {
-        SyntaxToken identifier = CreateMethodNameIdentifier(instruction, script);
+        NameSyntax identifier = CreateMethodNameIdentifier(instruction, script);
         var metadata = CreateMethodInvocationMetadata(instruction, script);
         var parameters = CreateMethodInvocationExpressionParameters(instruction, script);
 
         return new MethodInvocationExpressionSyntax(identifier, metadata, parameters);
     }
 
-    private SyntaxToken CreateMethodNameIdentifier(ScriptInstruction instruction, Gss1ScriptFile script)
+    private NameSyntax CreateMethodNameIdentifier(ScriptInstruction instruction, Gss1ScriptFile script)
     {
         if (IsMethodNameTransfer(instruction, script))
-            return _syntaxFactory.Identifier((string)script.Arguments[instruction.ArgumentIndex].Value);
+            return CreateName((string)script.Arguments[instruction.ArgumentIndex].Value);
 
         if (_methodNameMapper.MapsInstructionType(instruction.Type))
         {
             string mappedMethod = _methodNameMapper.GetMethodName(instruction.Type);
-            return _syntaxFactory.Identifier(mappedMethod);
+            return CreateName(mappedMethod);
         }
 
-        return _syntaxFactory.Identifier($"sub{instruction.Type}");
+        return CreateName($"sub{instruction.Type}");
     }
 
     private MethodInvocationMetadataSyntax? CreateMethodInvocationMetadata(ScriptInstruction instruction, Gss1ScriptFile script)
@@ -875,6 +875,24 @@ internal class Gss1ScriptFileConverter : IGss1ScriptFileConverter
     private LiteralExpressionSyntax CreateStringLiteralExpression(string value)
     {
         return new LiteralExpressionSyntax(_syntaxFactory.StringLiteral(value));
+    }
+
+    private NameSyntax CreateName(string name)
+    {
+        if (name.Contains('.'))
+            return new SimpleNameSyntax(_syntaxFactory.Identifier(name));
+
+        NameSyntax? result = null;
+
+        foreach (string part in name.Split('.').Reverse())
+        {
+            if (result is null)
+                result = new SimpleNameSyntax(_syntaxFactory.Identifier(part));
+            else
+                result = new QualifiedNameSyntax(new SimpleNameSyntax(_syntaxFactory.Identifier(part)), _syntaxFactory.Token(SyntaxTokenKind.Dot), result);
+        }
+
+        return result!;
     }
 
     private bool IsMethodNameTransfer(ScriptInstruction instruction, Gss1ScriptFile script)

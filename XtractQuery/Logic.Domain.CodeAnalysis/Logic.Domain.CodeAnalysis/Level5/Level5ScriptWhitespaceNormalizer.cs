@@ -693,29 +693,22 @@ internal class Level5ScriptWhitespaceNormalizer : ILevel5ScriptWhitespaceNormali
 
     private void NormalizeMethodInvocationExpression(MethodInvocationExpressionSyntax invocation, WhitespaceNormalizeContext ctx)
     {
-        SyntaxToken newIdentifier = invocation.Identifier.WithNoTrivia();
+        ctx.ShouldIndent = false;
 
-        invocation.SetIdentifier(newIdentifier, false);
-
+        NormalizeName(invocation.Name, ctx);
         NormalizeMethodInvocationMetadata(invocation.Metadata, ctx);
         NormalizeMethodInvocationParameters(invocation.Parameters, ctx);
     }
 
     private void NormalizeMethodInvocationStatement(MethodInvocationStatementSyntax invocation, WhitespaceNormalizeContext ctx)
     {
-        SyntaxToken newIdentifier = invocation.Identifier.WithNoTrivia();
         SyntaxToken newSemicolon = invocation.Semicolon.WithNoTrivia();
 
         if (ctx.ShouldLineBreak)
             newSemicolon = newSemicolon.WithTrailingTrivia("\r\n");
 
-        string? leadingTrivia = null;
-        if (ctx is { ShouldIndent: true, Indent: > 0 })
-            leadingTrivia = new string('\t', ctx.Indent);
+        NormalizeName(invocation.Name, ctx);
 
-        newIdentifier = newIdentifier.WithLeadingTrivia(leadingTrivia);
-
-        invocation.SetIdentifier(newIdentifier, false);
         invocation.SetSemicolon(newSemicolon, false);
 
         ctx.ShouldIndent = false;
@@ -818,5 +811,42 @@ internal class Level5ScriptWhitespaceNormalizer : ILevel5ScriptWhitespaceNormali
 
         ctx.IsFirstElement = true;
         NormalizeLiteralExpression(valueMetadataParameters.Parameter, ctx);
+    }
+
+    private void NormalizeName(NameSyntax name, WhitespaceNormalizeContext ctx)
+    {
+        switch (name)
+        {
+            case SimpleNameSyntax simpleName:
+                NormalizeSimpleName(simpleName, ctx);
+                break;
+
+            case QualifiedNameSyntax qualifiedName:
+                NormalizeQualifiedName(qualifiedName, ctx);
+                break;
+        }
+    }
+
+    private void NormalizeSimpleName(SimpleNameSyntax name, WhitespaceNormalizeContext ctx)
+    {
+        SyntaxToken identifierToken = name.Identifier.WithNoTrivia();
+
+        string? leadingTrivia = null;
+        if (ctx is { ShouldIndent: true, Indent: > 0 })
+            leadingTrivia = new string('\t', ctx.Indent);
+
+        identifierToken = identifierToken.WithLeadingTrivia(leadingTrivia);
+
+        name.SetIdentifier(identifierToken);
+    }
+
+    private void NormalizeQualifiedName(QualifiedNameSyntax name, WhitespaceNormalizeContext ctx)
+    {
+        SyntaxToken dotToken = name.Dot.WithNoTrivia();
+
+        name.SetDot(dotToken);
+
+        NormalizeName(name.Left, ctx);
+        NormalizeName(name.Right, ctx);
     }
 }

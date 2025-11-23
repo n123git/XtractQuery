@@ -16,6 +16,7 @@ internal class Level5SyntaxFactory : ILevel5SyntaxFactory
     {
         switch (kind)
         {
+            case SyntaxTokenKind.Dot: return new(".", (int)kind);
             case SyntaxTokenKind.Comma: return new(",", (int)kind);
             case SyntaxTokenKind.Colon: return new(":", (int)kind);
             case SyntaxTokenKind.Semicolon: return new(";", (int)kind);

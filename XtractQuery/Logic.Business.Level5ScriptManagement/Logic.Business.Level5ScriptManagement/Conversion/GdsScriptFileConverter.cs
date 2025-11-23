@@ -84,16 +84,16 @@ internal class GdsScriptFileConverter : IGdsScriptFileConverter
         switch (instruction.Type)
         {
             case 7:
-                return CreateMethodInvocationExpression(_syntaxFactory.Identifier("cmd7"), instruction);
+                return CreateMethodInvocationExpression(CreateName("cmd7"), instruction);
 
             case 8:
-                return CreateMethodInvocationExpression(_syntaxFactory.Identifier("cmd8"), instruction);
+                return CreateMethodInvocationExpression(CreateName("cmd8"), instruction);
 
             case 9:
-                return CreateMethodInvocationExpression(_syntaxFactory.Identifier("cmd9"), instruction);
+                return CreateMethodInvocationExpression(CreateName("cmd9"), instruction);
 
             case 11:
-                return CreateMethodInvocationExpression(_syntaxFactory.Identifier("cmd11"), instruction);
+                return CreateMethodInvocationExpression(CreateName("cmd11"), instruction);
 
             case 12:
                 return CreateReturnStatement();
@@ -113,12 +113,12 @@ internal class GdsScriptFileConverter : IGdsScriptFileConverter
 
     private MethodInvocationStatementSyntax CreateMethodInvocationExpression(GdsScriptInstruction instruction)
     {
-        SyntaxToken identifier = CreateMethodNameIdentifier(instruction);
+        NameSyntax identifier = CreateMethodNameIdentifier(instruction);
 
         return CreateMethodInvocationExpression(identifier, instruction);
     }
 
-    private MethodInvocationStatementSyntax CreateMethodInvocationExpression(SyntaxToken methodName, GdsScriptInstruction instruction)
+    private MethodInvocationStatementSyntax CreateMethodInvocationExpression(NameSyntax methodName, GdsScriptInstruction instruction)
     {
         var parameters = CreateMethodInvocationExpressionParameters(instruction);
         SyntaxToken semicolon = _syntaxFactory.Token(SyntaxTokenKind.Semicolon);
@@ -126,7 +126,7 @@ internal class GdsScriptFileConverter : IGdsScriptFileConverter
         return new MethodInvocationStatementSyntax(methodName, null, parameters, semicolon);
     }
 
-    private SyntaxToken CreateMethodNameIdentifier(GdsScriptInstruction instruction)
+    private NameSyntax CreateMethodNameIdentifier(GdsScriptInstruction instruction)
     {
         if (instruction.Arguments.Length < 1)
             throw new InvalidOperationException("Missing call type for instruction.");
@@ -139,10 +139,10 @@ internal class GdsScriptFileConverter : IGdsScriptFileConverter
         if (_methodNameMapper.MapsInstructionType(instructionType))
         {
             string mappedMethod = _methodNameMapper.GetMethodName(instructionType);
-            return _syntaxFactory.Identifier(mappedMethod);
+            return CreateName(mappedMethod);
         }
 
-        return _syntaxFactory.Identifier($"sub{instructionType}");
+        return CreateName($"sub{instructionType}");
     }
 
     private MethodInvocationParametersSyntax CreateMethodInvocationExpressionParameters(GdsScriptInstruction instruction)
@@ -240,5 +240,23 @@ internal class GdsScriptFileConverter : IGdsScriptFileConverter
     private LiteralExpressionSyntax CreateHashStringExpression(string value)
     {
         return new LiteralExpressionSyntax(_syntaxFactory.HashStringLiteral(value));
+    }
+
+    private NameSyntax CreateName(string name)
+    {
+        if (name.Contains('.'))
+            return new SimpleNameSyntax(_syntaxFactory.Identifier(name));
+
+        NameSyntax? result = null;
+
+        foreach (string part in name.Split('.').Reverse())
+        {
+            if (result is null)
+                result = new SimpleNameSyntax(_syntaxFactory.Identifier(part));
+            else
+                result = new QualifiedNameSyntax(new SimpleNameSyntax(_syntaxFactory.Identifier(part)), _syntaxFactory.Token(SyntaxTokenKind.Dot), result);
+        }
+
+        return result!;
     }
 }

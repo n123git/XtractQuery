@@ -1,34 +1,33 @@
-﻿using Logic.Domain.CodeAnalysis.Contract.DataClasses;
-
-namespace Logic.Domain.CodeAnalysis.Contract.DataClasses.Level5;
+﻿namespace Logic.Domain.CodeAnalysis.Contract.DataClasses.Level5;
 
 public class MethodInvocationExpressionSyntax : ExpressionSyntax
 {
-    public SyntaxToken Identifier { get; private set; }
+    public NameSyntax Name { get; private set; }
     public MethodInvocationMetadataSyntax? Metadata { get; private set; }
     public MethodInvocationParametersSyntax Parameters { get; private set; }
 
-    public override SyntaxLocation Location => Identifier.FullLocation;
-    public override SyntaxSpan Span => new(Identifier.FullSpan.Position, Parameters.Span.EndPosition);
+    public override SyntaxLocation Location => Name.Location;
+    public override SyntaxSpan Span => new(Name.Span.Position, Parameters.Span.EndPosition);
 
-    public MethodInvocationExpressionSyntax(SyntaxToken identifier, MethodInvocationMetadataSyntax? metadata, MethodInvocationParametersSyntax parameters)
+    public MethodInvocationExpressionSyntax(NameSyntax name, MethodInvocationMetadataSyntax? metadata, MethodInvocationParametersSyntax parameters)
     {
-        identifier.Parent = this;
+        name.Parent = this;
         if (metadata != null)
             metadata.Parent = this;
         parameters.Parent = this;
 
-        Identifier = identifier;
+        Name = name;
         Metadata = metadata;
         Parameters = parameters;
 
         Root.Update();
     }
 
-    public void SetIdentifier(SyntaxToken identifier, bool updatePosition = true)
+    public void SetName(NameSyntax name, bool updatePosition = true)
     {
-        identifier.Parent = this;
-        Identifier = identifier;
+        name.Parent = this;
+
+        Name = name;
 
         if (updatePosition)
             Root.Update();
@@ -55,14 +54,10 @@ public class MethodInvocationExpressionSyntax : ExpressionSyntax
 
     internal override int UpdatePosition(int position, ref int line, ref int column)
     {
-        SyntaxToken identifier = Identifier;
-
-        position = identifier.UpdatePosition(position, ref line, ref column);
+        position = Name.UpdatePosition(position, ref line, ref column);
         if (Metadata != null)
             position = Metadata.UpdatePosition(position, ref line, ref column);
         position = Parameters.UpdatePosition(position, ref line, ref column);
-
-        Identifier = identifier;
 
         return position;
     }

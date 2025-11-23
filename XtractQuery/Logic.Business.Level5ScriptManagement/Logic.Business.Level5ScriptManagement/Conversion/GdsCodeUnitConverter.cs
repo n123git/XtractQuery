@@ -79,7 +79,7 @@ internal class GdsCodeUnitConverter : IGdsCodeUnitConverter
 
     private bool IsCommand(MethodInvocationStatementSyntax methodInvocation)
     {
-        switch (methodInvocation.Identifier.Text)
+        switch (GetName(methodInvocation.Name))
         {
             case "cmd7":
             case "cmd8":
@@ -99,7 +99,7 @@ internal class GdsCodeUnitConverter : IGdsCodeUnitConverter
 
     private void AddCommandInvocationStatement(List<GdsScriptInstruction> instructions, MethodInvocationStatementSyntax methodInvocation, GdsScriptJump? jump = null)
     {
-        switch (methodInvocation.Identifier.Text)
+        switch (GetName(methodInvocation.Name))
         {
             case "cmd7":
                 if (methodInvocation.Parameters.ParameterList is null || methodInvocation.Parameters.ParameterList.Elements.Count <= 0)
@@ -127,7 +127,7 @@ internal class GdsCodeUnitConverter : IGdsCodeUnitConverter
 
     private void AddMethodInvocationStatement(List<GdsScriptInstruction> instructions, MethodInvocationStatementSyntax methodInvocation, GdsScriptJump? jump = null)
     {
-        int invocationType = GetInvocationType(methodInvocation.Identifier);
+        int invocationType = GetInvocationType(methodInvocation.Name);
 
         var arguments = new List<GdsScriptArgument>();
         AddArgument(arguments, GdsScriptArgumentType.Int, invocationType);
@@ -139,15 +139,17 @@ internal class GdsCodeUnitConverter : IGdsCodeUnitConverter
         AddInstruction(instructions, 0, arguments, jump);
     }
 
-    private int GetInvocationType(SyntaxToken identifier)
+    private int GetInvocationType(NameSyntax name)
     {
-        if (_subPattern.IsMatch(identifier.Text))
-            return GetNumberFromStringEnd(identifier.Text);
+        string composedName = GetName(name);
 
-        if (_methodNameMapper.MapsMethodName(identifier.Text))
-            return _methodNameMapper.GetInstructionType(identifier.Text);
+        if (_subPattern.IsMatch(composedName))
+            return GetNumberFromStringEnd(composedName);
 
-        throw CreateException("Could not determine instruction type.", identifier.Location);
+        if (_methodNameMapper.MapsMethodName(composedName))
+            return _methodNameMapper.GetInstructionType(composedName);
+
+        throw CreateException("Could not determine instruction type.", name.Location);
     }
 
     private void AddInstruction(List<GdsScriptInstruction> instructions, int instructionType, List<GdsScriptArgument> arguments, GdsScriptJump? jump = null)
@@ -216,6 +218,21 @@ internal class GdsCodeUnitConverter : IGdsCodeUnitConverter
             Type = type,
             Value = value
         });
+    }
+
+    private string GetName(NameSyntax name)
+    {
+        switch (name)
+        {
+            case SimpleNameSyntax simpleName:
+                return simpleName.Identifier.Text;
+
+            case QualifiedNameSyntax qualifiedName:
+                return GetName(qualifiedName.Left) + "." + GetName(qualifiedName.Right);
+
+            default:
+                throw CreateException("Invalid name syntax.", name.Location);
+        }
     }
 
     private int GetNumericLiteral(LiteralExpressionSyntax literal)

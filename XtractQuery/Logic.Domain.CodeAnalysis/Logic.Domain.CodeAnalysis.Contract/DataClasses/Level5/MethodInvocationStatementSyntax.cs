@@ -1,26 +1,24 @@
-﻿using Logic.Domain.CodeAnalysis.Contract.DataClasses;
-
-namespace Logic.Domain.CodeAnalysis.Contract.DataClasses.Level5;
+﻿namespace Logic.Domain.CodeAnalysis.Contract.DataClasses.Level5;
 
 public class MethodInvocationStatementSyntax : StatementSyntax
 {
-    public SyntaxToken Identifier { get; private set; }
+    public NameSyntax Name { get; private set; }
     public MethodInvocationMetadataSyntax? Metadata { get; private set; }
     public MethodInvocationParametersSyntax Parameters { get; private set; }
     public SyntaxToken Semicolon { get; private set; }
 
-    public override SyntaxLocation Location => Identifier.FullLocation;
-    public override SyntaxSpan Span => new(Identifier.FullSpan.Position, Parameters.Span.EndPosition);
+    public override SyntaxLocation Location => Name.Location;
+    public override SyntaxSpan Span => new(Name.Span.Position, Parameters.Span.EndPosition);
 
-    public MethodInvocationStatementSyntax(SyntaxToken identifier, MethodInvocationMetadataSyntax? metadata, MethodInvocationParametersSyntax parameters, SyntaxToken semicolon)
+    public MethodInvocationStatementSyntax(NameSyntax name, MethodInvocationMetadataSyntax? metadata, MethodInvocationParametersSyntax parameters, SyntaxToken semicolon)
     {
-        identifier.Parent = this;
+        name.Parent = this;
         if (metadata != null)
             metadata.Parent = this;
         parameters.Parent = this;
         semicolon.Parent = this;
 
-        Identifier = identifier;
+        Name = name;
         Metadata = metadata;
         Parameters = parameters;
         Semicolon = semicolon;
@@ -28,10 +26,11 @@ public class MethodInvocationStatementSyntax : StatementSyntax
         Root.Update();
     }
 
-    public void SetIdentifier(SyntaxToken identifier, bool updatePosition = true)
+    public void SetName(NameSyntax name, bool updatePosition = true)
     {
-        identifier.Parent = this;
-        Identifier = identifier;
+        name.Parent = this;
+
+        Name = name;
 
         if (updatePosition)
             Root.Update();
@@ -41,6 +40,7 @@ public class MethodInvocationStatementSyntax : StatementSyntax
     {
         if (metadata != null)
             metadata.Parent = this;
+
         Metadata = metadata;
 
         if (updatePosition)
@@ -68,16 +68,14 @@ public class MethodInvocationStatementSyntax : StatementSyntax
 
     internal override int UpdatePosition(int position, ref int line, ref int column)
     {
-        SyntaxToken identifier = Identifier;
         SyntaxToken semicolon = Semicolon;
 
-        position = identifier.UpdatePosition(position, ref line, ref column);
+        position = Name.UpdatePosition(position, ref line, ref column);
         if (Metadata != null)
             position = Metadata.UpdatePosition(position, ref line, ref column);
         position = Parameters.UpdatePosition(position, ref line, ref column);
         position = semicolon.UpdatePosition(position, ref line, ref column);
 
-        Identifier = identifier;
         Semicolon = semicolon;
 
         return position;

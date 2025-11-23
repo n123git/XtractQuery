@@ -86,6 +86,8 @@ internal abstract class CompressedScriptReader<TFunction, TJump, TInstruction, T
 
     public IList<ScriptFunction> CreateFunctions(IReadOnlyList<TFunction> functions, CompressedScriptStringTable? stringTable)
     {
+        ClearFunctionCache();
+
         using BinaryReaderX? stringReader = stringTable == null ? null : new BinaryReaderX(stringTable.Stream, _sjisEncoding, true);
 
         var result = new ScriptFunction[functions.Count];
@@ -99,6 +101,8 @@ internal abstract class CompressedScriptReader<TFunction, TJump, TInstruction, T
 
     public IList<ScriptJump> CreateJumps(IReadOnlyList<TJump> jumps, CompressedScriptStringTable? stringTable = null)
     {
+        ClearJumpCache();
+
         using BinaryReaderX? stringReader = stringTable == null ? null : new BinaryReaderX(stringTable.Stream, _sjisEncoding, true);
 
         var result = new ScriptJump[jumps.Count];
@@ -143,6 +147,9 @@ internal abstract class CompressedScriptReader<TFunction, TJump, TInstruction, T
 
         return result;
     }
+
+    protected virtual void ClearFunctionCache() { }
+    protected virtual void ClearJumpCache() { }
 
     protected abstract ScriptFunction CreateFunction(TFunction function, BinaryReaderX? stringReader);
     protected abstract ScriptJump CreateJump(TJump jump, BinaryReaderX? stringReader);

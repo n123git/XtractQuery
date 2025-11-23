@@ -53,7 +53,7 @@ internal class XscrCodeUnitConverter : IXscrCodeUnitConverter
 
     private void AddMethodInvocationStatement(XscrScriptFile result, MethodInvocationStatementSyntax methodInvocation)
     {
-        int instructionType = GetInstructionType(methodInvocation.Identifier);
+        int instructionType = GetInstructionType(methodInvocation.Name);
         int argumentIndex = result.Arguments.Count;
 
         if (methodInvocation.Parameters.ParameterList != null)
@@ -64,15 +64,17 @@ internal class XscrCodeUnitConverter : IXscrCodeUnitConverter
         AddInstruction(result, instructionType, argumentIndex, argumentCount);
     }
 
-    private int GetInstructionType(SyntaxToken identifier)
+    private int GetInstructionType(NameSyntax name)
     {
-        if (_subPattern.IsMatch(identifier.Text))
-            return GetNumberFromStringEnd(identifier.Text);
+        string composedName = GetName(name);
 
-        if (_methodNameMapper.MapsMethodName(identifier.Text))
-            return _methodNameMapper.GetInstructionType(identifier.Text);
+        if (_subPattern.IsMatch(composedName))
+            return GetNumberFromStringEnd(composedName);
 
-        throw CreateException("Could not determine instruction type.", identifier.Location);
+        if (_methodNameMapper.MapsMethodName(composedName))
+            return _methodNameMapper.GetInstructionType(composedName);
+
+        throw CreateException("Could not determine instruction type.", name.Location);
     }
 
     private void AddInstruction(XscrScriptFile result, int instructionType, int argumentIndex, int argumentCount)
@@ -151,6 +153,21 @@ internal class XscrCodeUnitConverter : IXscrCodeUnitConverter
             Type = type,
             Value = value
         });
+    }
+
+    private string GetName(NameSyntax name)
+    {
+        switch (name)
+        {
+            case SimpleNameSyntax simpleName:
+                return simpleName.Identifier.Text;
+
+            case QualifiedNameSyntax qualifiedName:
+                return GetName(qualifiedName.Left) + "." + GetName(qualifiedName.Right);
+
+            default:
+                throw CreateException("Invalid name syntax.", name.Location);
+        }
     }
 
     private int GetNumericLiteral(LiteralExpressionSyntax literal)

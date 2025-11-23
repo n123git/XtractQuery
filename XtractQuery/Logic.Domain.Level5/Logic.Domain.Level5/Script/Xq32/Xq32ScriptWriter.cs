@@ -261,7 +261,7 @@ internal class Xq32ScriptWriter : IXq32ScriptWriter
             case ScriptArgumentType.StringHash:
                 type = 2;
                 if (argument.Value is string stringValue)
-                    value = _checksum.ComputeValue(stringValue);
+                    value = _checksum.ComputeValue(stringValue.Split('.')[^1]);
                 else
                     value = (uint)argument.Value;
 
