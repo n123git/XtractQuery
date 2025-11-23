@@ -51,7 +51,7 @@ internal class Level5ScriptLexer : ILexer<Level5SyntaxToken>
                 if (IsPeekedChar(1, '='))
                     return new Level5SyntaxToken(SyntaxTokenKind.NotEquals, Position, Line, Column, $"{ReadChar()}{ReadChar()}");
 
-                break;
+                return new Level5SyntaxToken(SyntaxTokenKind.Not, Position, Line, Column, $"{ReadChar()}");
 
             case '(':
                 return new Level5SyntaxToken(SyntaxTokenKind.ParenOpen, Position, Line, Column, $"{ReadChar()}");

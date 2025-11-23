@@ -375,6 +375,7 @@ internal class Xq32CodeUnitConverter : IXq32CodeUnitConverter
                         break;
 
                     case (int)SyntaxTokenKind.NotKeyword:
+                    case (int)SyntaxTokenKind.Not:
                         instructionType = 120;
                         break;
 

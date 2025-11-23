@@ -376,6 +376,7 @@ internal class Gss1CodeUnitConverter : IGss1CodeUnitConverter
                         break;
 
                     case (int)SyntaxTokenKind.NotKeyword:
+                    case (int)SyntaxTokenKind.Not:
                         instructionType = 120;
                         break;
 

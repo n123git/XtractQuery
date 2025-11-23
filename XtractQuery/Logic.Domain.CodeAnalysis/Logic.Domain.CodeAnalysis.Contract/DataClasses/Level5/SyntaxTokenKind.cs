@@ -7,6 +7,7 @@ public enum SyntaxTokenKind
     Colon,
     Semicolon,
     Underscore,
+    Not,
     EqualsSign,
     Complement,
     Minus,

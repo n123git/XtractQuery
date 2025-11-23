@@ -308,15 +308,16 @@ internal class Level5ScriptParser : ILevel5ScriptParser
     {
         SyntaxToken ifToken = ParseIfKeywordToken(buffer);
 
-        if (HasTokenKind(buffer, SyntaxTokenKind.NotKeyword))
+        if (HasTokenKind(buffer, SyntaxTokenKind.NotKeyword) || HasTokenKind(buffer, SyntaxTokenKind.Not))
             return new IfNotGotoStatementSyntax(ifToken, ParseUnaryExpression(buffer), ParseGotoStatement(buffer));
 
         if (IsValueExpression(buffer))
             return new IfGotoStatementSyntax(ifToken, ParseValueExpression(buffer), ParseGotoStatement(buffer));
 
-        throw CreateException(buffer, "Unknown if statement.", SyntaxTokenKind.NotKeyword, SyntaxTokenKind.Variable,
-            SyntaxTokenKind.StringLiteral, SyntaxTokenKind.NumericLiteral, SyntaxTokenKind.UnsignedNumericLiteral,
-            SyntaxTokenKind.FloatingNumericLiteral, SyntaxTokenKind.HashNumericLiteral, SyntaxTokenKind.HashStringLiteral);
+        throw CreateException(buffer, "Unknown if statement.", SyntaxTokenKind.NotKeyword, SyntaxTokenKind.Not,
+            SyntaxTokenKind.Variable, SyntaxTokenKind.StringLiteral, SyntaxTokenKind.NumericLiteral,
+            SyntaxTokenKind.UnsignedNumericLiteral, SyntaxTokenKind.FloatingNumericLiteral, SyntaxTokenKind.HashNumericLiteral,
+            SyntaxTokenKind.HashStringLiteral);
     }
 
     private GotoStatementSyntax ParseGotoStatement(IBuffer<Level5SyntaxToken> buffer)
@@ -684,7 +685,8 @@ internal class Level5ScriptParser : ILevel5ScriptParser
     {
         return HasTokenKind(buffer, SyntaxTokenKind.Complement) ||
                HasTokenKind(buffer, SyntaxTokenKind.Minus) ||
-               HasTokenKind(buffer, SyntaxTokenKind.NotKeyword);
+               HasTokenKind(buffer, SyntaxTokenKind.NotKeyword) ||
+               HasTokenKind(buffer, SyntaxTokenKind.Not);
     }
 
     private UnaryExpressionSyntax ParseUnaryExpression(IBuffer<Level5SyntaxToken> buffer)
@@ -699,6 +701,9 @@ internal class Level5ScriptParser : ILevel5ScriptParser
 
             case SyntaxTokenKind.NotKeyword:
                 return new UnaryExpressionSyntax(ParseNotKeywordToken(buffer), ParseValueExpression(buffer));
+
+            case SyntaxTokenKind.Not:
+                return new UnaryExpressionSyntax(ParseNotToken(buffer), ParseValueExpression(buffer));
 
             default:
                 throw CreateException(buffer, "Unknown unary expression.", SyntaxTokenKind.Complement, SyntaxTokenKind.Minus);
@@ -918,6 +923,11 @@ internal class Level5ScriptParser : ILevel5ScriptParser
     private SyntaxToken ParseColonToken(IBuffer<Level5SyntaxToken> buffer)
     {
         return CreateToken(buffer, SyntaxTokenKind.Colon);
+    }
+
+    private SyntaxToken ParseNotToken(IBuffer<Level5SyntaxToken> buffer)
+    {
+        return CreateToken(buffer, SyntaxTokenKind.Not);
     }
 
     private SyntaxToken ParseEqualsSignToken(IBuffer<Level5SyntaxToken> buffer)
