@@ -179,18 +179,30 @@ internal class XseqScriptFileConverter : IXseqScriptFileConverter
     {
         SyntaxToken ifToken = _syntaxFactory.Token(SyntaxTokenKind.IfKeyword);
         var value = CreateValueExpression(script.Arguments[instruction.ArgumentIndex + 1]);
-        var gotoStatement = CreateGotoStatement(instruction, script);
+        var gotoStatement = CreateGotoExpression(instruction, script);
+        SyntaxToken semicolon = _syntaxFactory.Token(SyntaxTokenKind.Semicolon);
 
-        return new IfGotoStatementSyntax(ifToken, value, gotoStatement);
+        return new IfGotoStatementSyntax(ifToken, value, gotoStatement, semicolon);
+    }
+
+    private GotoExpressionSyntax CreateGotoExpression(ScriptInstruction instruction, ScriptFile script)
+    {
+        SyntaxToken gotoToken = _syntaxFactory.Token(SyntaxTokenKind.GotoKeyword);
+        var value = CreateValueExpression(script.Arguments[instruction.ArgumentIndex]);
+
+        return new GotoExpressionSyntax(gotoToken, value);
     }
 
     private GotoStatementSyntax CreateGotoStatement(ScriptInstruction instruction, ScriptFile script)
     {
+        var list = CreateValueList(instruction, script);
+        if (list is null)
+            throw new InvalidOperationException("Could not create goto statement.");
+
         SyntaxToken gotoToken = _syntaxFactory.Token(SyntaxTokenKind.GotoKeyword);
-        var value = CreateValueExpression(script.Arguments[instruction.ArgumentIndex]);
         SyntaxToken semicolon = _syntaxFactory.Token(SyntaxTokenKind.Semicolon);
 
-        return new GotoStatementSyntax(gotoToken, value, semicolon);
+        return new GotoStatementSyntax(gotoToken, list, semicolon);
     }
 
     private IfNotGotoStatementSyntax CreateIfNotGotoStatement(ScriptInstruction instruction, ScriptFile script)
@@ -198,9 +210,10 @@ internal class XseqScriptFileConverter : IXseqScriptFileConverter
         SyntaxToken ifToken = _syntaxFactory.Token(SyntaxTokenKind.IfKeyword);
         var value = CreateValueExpression(script.Arguments[instruction.ArgumentIndex + 1]);
         var unaryExpression = CreateNotUnaryExpression(value);
-        var gotoStatement = CreateGotoStatement(instruction, script);
+        var gotoStatement = CreateGotoExpression(instruction, script);
+        SyntaxToken semicolon = _syntaxFactory.Token(SyntaxTokenKind.Semicolon);
 
-        return new IfNotGotoStatementSyntax(ifToken, unaryExpression, gotoStatement);
+        return new IfNotGotoStatementSyntax(ifToken, unaryExpression, gotoStatement, semicolon);
     }
 
     private PostfixUnaryStatementSyntax CreatePostfixUnaryStatement(ScriptInstruction instruction, ScriptFile script)

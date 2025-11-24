@@ -3,20 +3,20 @@
 public class GotoStatementSyntax : StatementSyntax
 {
     public SyntaxToken Goto { get; private set; }
-    public ValueExpressionSyntax Target { get; private set; }
+    public CommaSeparatedSyntaxList<ValueExpressionSyntax> Targets { get; private set; }
     public SyntaxToken Semicolon { get; private set; }
 
     public override SyntaxLocation Location => Goto.FullLocation;
-    public override SyntaxSpan Span => new(Goto.FullSpan.Position, Target.Span.EndPosition);
+    public override SyntaxSpan Span => new(Goto.FullSpan.Position, Targets.Span.EndPosition);
 
-    public GotoStatementSyntax(SyntaxToken gotoToken, ValueExpressionSyntax target, SyntaxToken semicolon)
+    public GotoStatementSyntax(SyntaxToken gotoToken, CommaSeparatedSyntaxList<ValueExpressionSyntax> targets, SyntaxToken semicolon)
     {
         gotoToken.Parent = this;
-        target.Parent = this;
+        targets.Parent = this;
         semicolon.Parent = this;
 
         Goto = gotoToken;
-        Target = target;
+        Targets = targets;
         Semicolon = semicolon;
 
         Root.Update();
@@ -48,7 +48,7 @@ public class GotoStatementSyntax : StatementSyntax
         SyntaxToken semicolon = Semicolon;
 
         position = gotoToken.UpdatePosition(position, ref line, ref column);
-        position = Target.UpdatePosition(position, ref line, ref column);
+        position = Targets.UpdatePosition(position, ref line, ref column);
         position = semicolon.UpdatePosition(position, ref line, ref column);
 
         Goto = gotoToken;

@@ -289,39 +289,43 @@ internal class Level5ScriptWhitespaceNormalizer : ILevel5ScriptWhitespaceNormali
     private void NormalizeIfGotoStatement(IfGotoStatementSyntax ifGotoStatement, WhitespaceNormalizeContext ctx)
     {
         SyntaxToken newIf = ifGotoStatement.If.WithTrailingTrivia(null).WithTrailingTrivia(" ");
+        SyntaxToken newSemicolon = ifGotoStatement.Semicolon.WithNoTrivia();
 
         if (ctx is { ShouldIndent: true, Indent: > 0 })
             newIf = newIf.WithLeadingTrivia(new string('\t', ctx.Indent));
+
+        if (ctx.ShouldLineBreak)
+            newSemicolon = newSemicolon.WithTrailingTrivia("\r\n");
 
         ctx.ShouldIndent = false;
         ctx.ShouldLineBreak = false;
         ctx.IsFirstElement = true;
         NormalizeValueExpression(ifGotoStatement.Value, ctx);
-
-        ctx.ShouldLineBreak = true;
-        ctx.IsFirstElement = false;
-        NormalizeGotoStatement(ifGotoStatement.Goto, ctx);
+        NormalizeGotoExpression(ifGotoStatement.Goto, ctx);
 
         ifGotoStatement.SetIf(newIf, false);
+        ifGotoStatement.SetSemicolon(newSemicolon, false);
     }
 
     private void NormalizeIfNotGotoStatement(IfNotGotoStatementSyntax ifNotGotoStatement, WhitespaceNormalizeContext ctx)
     {
         SyntaxToken newIf = ifNotGotoStatement.If.WithTrailingTrivia(null).WithTrailingTrivia(" ");
+        SyntaxToken newSemicolon = ifNotGotoStatement.Semicolon.WithNoTrivia();
 
         if (ctx is { ShouldIndent: true, Indent: > 0 })
             newIf = newIf.WithLeadingTrivia(new string('\t', ctx.Indent));
+
+        if (ctx.ShouldLineBreak)
+            newSemicolon = newSemicolon.WithTrailingTrivia("\r\n");
 
         ctx.ShouldIndent = false;
         ctx.ShouldLineBreak = false;
         ctx.IsFirstElement = true;
         NormalizeExpression(ifNotGotoStatement.Comparison, ctx);
-
-        ctx.ShouldLineBreak = true;
-        ctx.IsFirstElement = false;
-        NormalizeGotoStatement(ifNotGotoStatement.Goto, ctx);
+        NormalizeGotoExpression(ifNotGotoStatement.Goto, ctx);
 
         ifNotGotoStatement.SetIf(newIf, false);
+        ifNotGotoStatement.SetSemicolon(newSemicolon, false);
     }
 
     private void NormalizeGotoStatement(GotoStatementSyntax gotoStatement, WhitespaceNormalizeContext ctx)
@@ -342,10 +346,25 @@ internal class Level5ScriptWhitespaceNormalizer : ILevel5ScriptWhitespaceNormali
         ctx.ShouldIndent = false;
         ctx.ShouldLineBreak = false;
         ctx.IsFirstElement = true;
-        NormalizeValueExpression(gotoStatement.Target, ctx);
+        NormalizeValueExpressions(gotoStatement.Targets, ctx);
 
         gotoStatement.SetGoto(newGoto, false);
         gotoStatement.SetSemicolon(newSemicolon, false);
+    }
+
+    private void NormalizeGotoExpression(GotoExpressionSyntax gotoStatement, WhitespaceNormalizeContext ctx)
+    {
+        SyntaxToken newGoto = gotoStatement.Goto.WithLeadingTrivia(null).WithTrailingTrivia(" ");
+
+        if (ctx.IsFirstElement)
+            newGoto = newGoto.WithLeadingTrivia(" ");
+
+        ctx.ShouldIndent = false;
+        ctx.ShouldLineBreak = false;
+        ctx.IsFirstElement = true;
+        NormalizeValueExpression(gotoStatement.Target, ctx);
+
+        gotoStatement.SetGoto(newGoto, false);
     }
 
     private void NormalizeGotoLabelStatement(GotoLabelStatementSyntax gotoLabelStatement, WhitespaceNormalizeContext ctx)

@@ -309,10 +309,10 @@ internal class Level5ScriptParser : ILevel5ScriptParser
         SyntaxToken ifToken = ParseIfKeywordToken(buffer);
 
         if (HasTokenKind(buffer, SyntaxTokenKind.NotKeyword) || HasTokenKind(buffer, SyntaxTokenKind.Not))
-            return new IfNotGotoStatementSyntax(ifToken, ParseUnaryExpression(buffer), ParseGotoStatement(buffer));
+            return new IfNotGotoStatementSyntax(ifToken, ParseUnaryExpression(buffer), ParseGotoExpression(buffer), ParseSemicolonToken(buffer));
 
         if (IsValueExpression(buffer))
-            return new IfGotoStatementSyntax(ifToken, ParseValueExpression(buffer), ParseGotoStatement(buffer));
+            return new IfGotoStatementSyntax(ifToken, ParseValueExpression(buffer), ParseGotoExpression(buffer), ParseSemicolonToken(buffer));
 
         throw CreateException(buffer, "Unknown if statement.", SyntaxTokenKind.NotKeyword, SyntaxTokenKind.Not,
             SyntaxTokenKind.Variable, SyntaxTokenKind.StringLiteral, SyntaxTokenKind.NumericLiteral,
@@ -320,10 +320,20 @@ internal class Level5ScriptParser : ILevel5ScriptParser
             SyntaxTokenKind.HashStringLiteral);
     }
 
-    private GotoStatementSyntax ParseGotoStatement(IBuffer<Level5SyntaxToken> buffer)
+    private GotoExpressionSyntax ParseGotoExpression(IBuffer<Level5SyntaxToken> buffer)
     {
         SyntaxToken gotoToken = ParseGotoKeywordToken(buffer);
         var value = ParseValueExpression(buffer);
+
+        return new GotoExpressionSyntax(gotoToken, value);
+    }
+
+    private GotoStatementSyntax ParseGotoStatement(IBuffer<Level5SyntaxToken> buffer)
+    {
+        SyntaxToken gotoToken = ParseGotoKeywordToken(buffer);
+        var value = ParseValueList(buffer);
+        if (value is null)
+            throw CreateException(buffer, "Could not parse goto statement");
         SyntaxToken semicolon = ParseSemicolonToken(buffer);
 
         return new GotoStatementSyntax(gotoToken, value, semicolon);

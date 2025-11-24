@@ -168,8 +168,9 @@ internal class XseqCodeUnitConverter : IXseqCodeUnitConverter
     {
         var argumentStartIndex = (short)result.Arguments.Count;
 
-        AddArgument(result, gotoStatement.Target);
-        AddInstruction(result, argumentStartIndex, 1, 31, 1001);
+        foreach (var target in gotoStatement.Targets.Elements)
+            AddArgument(result, target);
+        AddInstruction(result, argumentStartIndex, gotoStatement.Targets.Elements.Count, 31, 1001);
     }
 
     private void AddIfNotGotoStatement(ScriptFile result, IfNotGotoStatementSyntax ifNotGotoStatement)

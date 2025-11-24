@@ -263,13 +263,20 @@ internal class Level5ScriptComposer : ILevel5ScriptComposer
     {
         ComposeSyntaxToken(ifGotoStatement.If, sb);
         ComposeValueExpression(ifGotoStatement.Value, sb);
-        ComposeGotoStatement(ifGotoStatement.Goto, sb);
+        ComposeGotoExpression(ifGotoStatement.Goto, sb);
+        ComposeSyntaxToken(ifGotoStatement.Semicolon, sb);
+    }
+
+    private void ComposeGotoExpression(GotoExpressionSyntax gotoStatement, StringBuilder sb)
+    {
+        ComposeSyntaxToken(gotoStatement.Goto, sb);
+        ComposeValueExpression(gotoStatement.Target, sb);
     }
 
     private void ComposeGotoStatement(GotoStatementSyntax gotoStatement, StringBuilder sb)
     {
         ComposeSyntaxToken(gotoStatement.Goto, sb);
-        ComposeValueExpression(gotoStatement.Target, sb);
+        ComposeValueExpressions(gotoStatement.Targets, sb);
         ComposeSyntaxToken(gotoStatement.Semicolon, sb);
     }
 
@@ -277,7 +284,8 @@ internal class Level5ScriptComposer : ILevel5ScriptComposer
     {
         ComposeSyntaxToken(ifNotGotoStatement.If, sb);
         ComposeUnaryExpression(ifNotGotoStatement.Comparison, sb);
-        ComposeGotoStatement(ifNotGotoStatement.Goto, sb);
+        ComposeGotoExpression(ifNotGotoStatement.Goto, sb);
+        ComposeSyntaxToken(ifNotGotoStatement.Semicolon, sb);
     }
 
     private void ComposeGotoLabelStatement(GotoLabelStatementSyntax gotoLabelStatement, StringBuilder sb)
