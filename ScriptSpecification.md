@@ -95,7 +95,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | 112 | Sets the negation of a literal value or variable to another variable.<br>```$local1 = -0;```<br>```$local1 = -$local2;``` |
 | 140 | Adds 1 to a variable and sets to another variable.<br>```$local1 = $local2 + 1;``` |
 | 141 | Subtracts 1 from a variable and sets to another variable.<br>```$local1 = $local2 - 1;``` |
-| 150 | Adds a literal value or variable to another variable and sets to another variable.<br>```$local1 = $local2 + 30;```<br>```$local1 = $local2 + $object1;``` |
+| 150 | Adds a literal value or variable to another variable and sets to another variable. Returns `0` if a non-numeric type is used.<br>```$local1 = $local2 + 30;```<br>```$local1 = $local2 + $object1;```<br>```$local1 = "hi!" + 3; // 0 because "hi" isn't numeric``` |
 | 151 | Subtracts a literal value or variable from another variable and sets to another variable.<br>```$local1 = $local2 - 30;```<br>```$local1 = $local2 - $object1;``` |
 | 152 | Multiplies a literal value or variable with another variable and sets to another variable.<br>```$local1 = $local2 * 30;```<br>```$local1 = $local2 * $object1;``` |
 | 153 | Divides a variable by a literal value or another variable and sets to another variable.<br>```$local1 = $local2 / 30;```<br>```$local1 = $local2 / $object1;``` |
