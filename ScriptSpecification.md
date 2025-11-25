@@ -151,7 +151,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | Type | Description |
 | - | - |
 | 530 | Creates a new multi-dimensional array.<br>```$local1 = new[2];```<br>```$local1 = new[2][1];``` |
-| 531 | Gets a reference to the indexed element in an array. Returns `0` if a non-numeric type is indexed. <br>```$local1 = $local2[0];```<br>```$local1 = $local2[2];``` |
+| 531 | Gets a reference to the indexed element in an array. Non-numeric indexes get coerced to 0. <br>```$local1 = $local2[0]; // accesses index 0 of $local2```<br>```$local1 = $local2["hi"]; // equivalent to $local1 = $local2[0];``` |
 
 The array index notation can be used in all shorthand assignments of type 240 - 271. They can not be directly used in operations of type 110 - 171. You need to use operation 531 to get an array element and set it to another variable to use them in those operations.
 
