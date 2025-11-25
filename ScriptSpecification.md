@@ -145,7 +145,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | 500 | Was originally used to log a message in developement. Is a no-op in published games.<br>```$local1 = log("This is a message.");``` |
 | 501 | Formats a string with placeholder values.<br>```$local1 = format("Formatted message %s", $local2);``` |
 | 502 | Converts a UTF-8 encoded string into a UTF-16 (wide) encoded string.<br>```$local1 = utf8_to_wide("hi");``` |
-| 503 | Get a substring from another string. Crashes on negative numbers. <br>```$local1 = substring("This message", 5);``` |
+| 503 | Get a substring from another string. Crashes on a negative start position. <br>```$local1 = substring("This message", 5);``` |
 
 #### Arrays
 | Type | Description |
@@ -158,7 +158,7 @@ The array index notation can be used in all shorthand assignments of type 240 - 
 #### Type
 | Type | Description |
 | - | - |
-| 40 | Gets the base type of a variable.<br>```$local1 = typeof($local2);``` |
+| 40 | Gets the base type of a variable. Base types can be found at the start of the specification. <br>```$local1 = typeof($local2);``` |
 | 511 | Casts a literal value or variable to int. Truncates floats. Other types coerce to `0`. <br>```$local1 = (int)$local2;``` |
 | 512 | Casts a literal value or variable to bool. `0`, `0.0f` and strings coerce to `false`. All other values coerce to `true`. <br>```$local1 = (bool)$local2;``` |
 | 513 | Casts a literal value or variable to float. Non-numeric values coerce to `0.0f`. <br>```$local1 = (float)$local2;``` |
@@ -189,7 +189,7 @@ The array index notation can be used in all shorthand assignments of type 240 - 
 | Type | Description |
 | - | - |
 | 510 | Gets the amount of parameters into the function.<br>```$local1 = parameter_count();``` |
-| 520 | Gets a random value from 0 to a maximum defined by a literal value or variable and sets it to another variable. Here are the results from the following inputs:<br><ul><li>Int: Returns a random integer in the range `0` to `input - 1`.</li><li>Float: Returns a random float in the range `0.0` to `input`.</li><li>String: Returns a random integer in the range `0` to `strlen(input) - 1`.</li><li>Others: Returns `0`.</li></ul> |
+| 520 | Gets a random value from 0 to a maximum defined by a literal value or variable and sets it to another variable.<br> The results for each data type are listed below:<br><ul><li>Integer: Returns a random integer in the range 0 to input - 1.</li><li>Float: Returns a random float in the range 0.0 to input.</li><li>Other: Returns 0.</li></ul>```$local1 = random(5); // can return an int from 0-4```<br>```$local2 = random(5f); // can return a float from 0.0-5.0``` | <!-- no <br> needed; due to the list block-->
 | 521 | Gets the CRC32 checksum of a literal value or variable and sets to another variable. Arrays return `0`. <br>```$local1 = crc32($local2);``` |
 | 522 | Gets the CRC16 checksum of a literal value or variable and sets to another variable. Arrays return `0`. <br>```$local1 = crc16($local2);``` |
 | 523 | Remaps the value of a variable to another literal value or variable or sets a default.<br><pre>$local1 = switch $local2<br>{<br>    1 => 99<br>    2 => $object1<br>    3 => $local3<br>    _ => 0<br>}</pre> |
