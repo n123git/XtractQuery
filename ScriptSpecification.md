@@ -42,7 +42,7 @@ All literal values and variables have their own notation, so they can be faithfu
 | - | - | - |
 | 1 | ```0``` | Describes a signed integer. |
 | 2 | ```0h``` | Describes an unsigned integer. The suffix 'h' was chosen, as this type is mostly used for checksum ('h'ash) values. |
-| 2 | ```"Text"h``` | Describes a string, that is converted to a checksum and then processed and written like an unsigned integer. The suffix 'h' was chosen to infer a parity to unsigned integers and what they represent. Treated equivalently to the previous entry by all instructions and functions. |
+| 2 | ```"Text"h``` | Describes a string, that is converted to a checksum and then processed and written like an unsigned integer. The suffix 'h' was chosen to infer a parity to unsigned integers and what they represent. Treated equivalently to the previous table entry by all instructions and functions. |
 | 3 | ```1.0f``` | Describes a floating point value. The suffix 'f' stands for 'float'. |
 | 4 | ```$variable1``` | Describes a value on the stack. Refer to "Variable notation" for their specific notation. |
 | 8 | ```"Text"``` | Describes a string, that is written as is. It will NOT be converted to a checksum. |
