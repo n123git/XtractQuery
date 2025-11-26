@@ -76,6 +76,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | Type | Description |
 | - | - |
 | 20 | Calls any function from any currently loaded script in the engine, either by name or by its CRC32-B or CRC16-X25 checksum.<br>```$local1 = call("MyOtherFunction"h, arg1, arg2, ...);```<br>```$local1 = call("MyOtherFunction", arg1, arg2, ...);```<br>```$local1 = MyOtherFunction(arg1, arg2, ...);``` |
+| 21 | Alias for instruction 20; due to some hardcoding within XtractQuery it is currently *not* recommended to use this alias.                                                                                                                                                                                   |
 
 #### Jumps
 | Type | Description |
