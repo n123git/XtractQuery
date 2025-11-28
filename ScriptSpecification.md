@@ -146,7 +146,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | 500 | Was originally used to log a message in developement. Is a no-op in published games.<br>```$local1 = log("This is a message. $local2 = ", $local2);``` |
 | 501 | Replaces each `"%s"` in a string with a specified value. `"%%"` can be used to insert a literal percent sign. Up to 999 placeholders can be formatted per call.<br>```$local1 = format("$local2 is equal to %s and $local3 is %s.", $local2, $local3);``` |
 | 502 | Converts a UTF-8 encoded string into a UTF-16 (wide) encoded string.<br>```$local1 = utf8_to_wide("hi");``` |
-| 503 | Gets a substring from another string. Crashes on a negative end position. Resets the variable it returns to on an end position of `0`. <br>```$local1 = substring("This message", 4); // "This" ``` |
+| 503 | Gets the first n chars of a string. Crashes on a negative end position. Resets the variable it returns to on an end position of `0`. <br>```$local1 = substring("This message", 4); // "This" ``` |
 
 #### Arrays
 | Type | Description |
