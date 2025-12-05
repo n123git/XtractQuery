@@ -42,10 +42,11 @@ All literal values and variables have their own notation, so they can be faithfu
 | - | - | - |
 | 1 | ```0``` | Describes a signed integer. |
 | 2 | ```0h``` | Describes an unsigned integer. The suffix 'h' was chosen, as this type is mostly used for checksum ('h'ash) values. |
-| 2 | ```"Text"h``` | Describes a string, that is converted to a checksum and then processed and written like an unsigned integer. The suffix 'h' was chosen to infer a parity to unsigned integers and what they represent. |
+| 2 | ```"Text"h``` | Describes a string, that is converted to a checksum and then processed and written like an unsigned integer. The suffix 'h' was chosen to infer a parity to unsigned integers and what they represent. Treated equivalently to the previous table entry by all instructions and functions. |
 | 3 | ```1.0f``` | Describes a floating point value. The suffix 'f' stands for 'float'. |
 | 4 | ```$variable1``` | Describes a value on the stack. Refer to "Variable notation" for their specific notation. |
 | 8 | ```"Text"``` | Describes a string, that is written as is. It will NOT be converted to a checksum. |
+| 10 | N/A | Describes a fixed size array initialised using instruction 530 and indexed via instruction 531. |
 
 ## Variable notation
 
@@ -76,6 +77,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | Type | Description |
 | - | - |
 | 20 | Calls any function from any currently loaded script in the engine, either by name or by its CRC32-B or CRC16-X25 checksum.<br>```$local1 = call("MyOtherFunction"h, arg1, arg2, ...);```<br>```$local1 = call("MyOtherFunction", arg1, arg2, ...);```<br>```$local1 = MyOtherFunction(arg1, arg2, ...);``` |
+| 21 | Alias for instruction 20; due to some hardcoding within XtractQuery it is currently *not* recommended to use this alias.                                                                                                                                                                                   |
 
 #### Jumps
 | Type | Description |
@@ -95,7 +97,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | 112 | Sets the negation of a literal value or variable to another variable.<br>```$local1 = -0;```<br>```$local1 = -$local2;``` |
 | 140 | Adds 1 to a variable and sets to another variable.<br>```$local1 = $local2 + 1;``` |
 | 141 | Subtracts 1 from a variable and sets to another variable.<br>```$local1 = $local2 - 1;``` |
-| 150 | Adds a literal value or variable to another variable and sets to another variable.<br>```$local1 = $local2 + 30;```<br>```$local1 = $local2 + $object1;``` |
+| 150 | Adds a literal value or variable to another variable and sets to another variable. Returns `0` if a non-numeric type is used.<br>```$local1 = $local2 + 30;```<br>```$local1 = $local2 + $object1;```<br>```$local1 = "hi!" + 3; // 0 because "hi" isn't numeric``` |
 | 151 | Subtracts a literal value or variable from another variable and sets to another variable.<br>```$local1 = $local2 - 30;```<br>```$local1 = $local2 - $object1;``` |
 | 152 | Multiplies a literal value or variable with another variable and sets to another variable.<br>```$local1 = $local2 * 30;```<br>```$local1 = $local2 * $object1;``` |
 | 153 | Divides a variable by a literal value or another variable and sets to another variable.<br>```$local1 = $local2 / 30;```<br>```$local1 = $local2 / $object1;``` |
@@ -142,23 +144,23 @@ Everything after the number will be ignored for compilation and follows no speci
 #### Strings
 | Type | Description |
 | - | - |
-| 500 | Was originally used to log a message in developement. Is a no-op in published games.<br>```$local1 = log("This is a message.");``` |
-| 501 | Formats a string with placeholder values.<br>```$local1 = format("Formatted message %s", $local2);``` |
+| 500 | Was originally used to log a message in developement. Is a no-op in published games.<br>```$local1 = log("This is a message. $local2 = ", $local2);``` |
+| 501 | Formats a string using C format specifiers (e.g., %s, %d). Use %% to escape percent signs, '-' for left alignment, numbers for minimum field width etc. Supports up to 999 placeholders per call. Note: %c returns a corrupted string on an input of several chars. <br>```$local1 = format("$local2 is equal to %s and $local3 is %s.", $local2, $local3);``` |
 | 502 | Converts a UTF-8 encoded string into a UTF-16 (wide) encoded string.<br>```$local1 = utf8_to_wide("hi");``` |
-| 503 | Get a substring from another string. Crashes on negative numbers. <br>```$local1 = substring("This message", 5);``` |
+| 503 | Gets the first n chars of a string. Crashes on a negative end position. Resets the variable it returns to on an end position of `0`. <br>```$local1 = substring("This message", 4); // returns "This" ``` |
 
 #### Arrays
 | Type | Description |
 | - | - |
 | 530 | Creates a new multi-dimensional array.<br>```$local1 = new[2];```<br>```$local1 = new[2][1];``` |
-| 531 | Gets a reference to the indexed element in an array. Returns `0` if a non-numeric type is indexed. <br>```$local1 = $local2[0];```<br>```$local1 = $local2[2];``` |
+| 531 | Gets a reference to the indexed element in an array. Non-numeric indexes get coerced to `0`. <br>```$local1 = $local2[0]; // accesses index 0 of $local2```<br>```$local1 = $local2["hi"]; // equivalent to $local1 = $local2[0];``` |
 
 The array index notation can be used in all shorthand assignments of type 240 - 271. They can not be directly used in operations of type 110 - 171. You need to use operation 531 to get an array element and set it to another variable to use them in those operations.
 
 #### Type
 | Type | Description |
 | - | - |
-| 40 | Gets the base type of a variable.<br>```$local1 = typeof($local2);``` |
+| 40 | Gets the base type of a variable. Base types can be found at the start of the specification. <br>```$local1 = typeof($local2);``` |
 | 511 | Casts a literal value or variable to int. Truncates floats. Other types coerce to `0`. <br>```$local1 = (int)$local2;``` |
 | 512 | Casts a literal value or variable to bool. `0`, `0.0f` and strings coerce to `false`. All other values coerce to `true`. <br>```$local1 = (bool)$local2;``` |
 | 513 | Casts a literal value or variable to float. Non-numeric values coerce to `0.0f`. <br>```$local1 = (float)$local2;``` |
@@ -189,7 +191,7 @@ The array index notation can be used in all shorthand assignments of type 240 - 
 | Type | Description |
 | - | - |
 | 510 | Gets the amount of parameters into the function.<br>```$local1 = parameter_count();``` |
-| 520 | Gets a random value from 0 to a maximum defined by a literal value or variable and sets it to another variable. Here are the results from the following inputs:<br><ul><li>Int: Returns a random integer in the range `0` to `input - 1`.</li><li>Float: Returns a random float in the range `0.0` to `input`.</li><li>String: Returns a random integer in the range `0` to `strlen(input) - 1`.</li><li>Others: Returns `0`.</li></ul> |
-| 521 | Gets the CRC32 checksum of a literal value or variable and sets to another variable. Arrays return `0`. <br>```$local1 = crc32($local2);``` |
-| 522 | Gets the CRC16 checksum of a literal value or variable and sets to another variable. Arrays return `0`. <br>```$local1 = crc16($local2);``` |
+| 520 | Gets a random value from 0 to a maximum defined by a literal value or variable and sets it to another variable.<br> The results for each data type are listed below:<br><ul><li>Integer: Returns a random integer in the range 0 to input - 1.</li><li>Float: Returns a random float in the range 0.0 to input.</li><li>Empty: Returns a random float in the range 0.0 - 1.0.</li><li>Other: Clears the variable it returns to.</li></ul>```$local1 = random(5); // can return an int from 0-4```<br>```$local2 = random(5f); // can return a float from 0.0-5.0```<br>```$local2 = random(); // can return a float from 0.0-1.0```<br>```$local2 = random("hi"); // clears $local2``` | <!-- no <br> needed; due to the list block-->
+| 521 | Gets the CRC32-B checksum of a literal value or variable and sets to another variable. Arrays return `0`. <br>```$local1 = crc32($local2);``` |
+| 522 | Gets the CRC16-X25 checksum of a literal value or variable and sets to another variable. Arrays return `0`. <br>```$local1 = crc16($local2);``` |
 | 523 | Remaps the value of a variable to another literal value or variable or sets a default.<br><pre>$local1 = switch $local2<br>{<br>    1 => 99<br>    2 => $object1<br>    3 => $local3<br>    _ => 0<br>}</pre> |
