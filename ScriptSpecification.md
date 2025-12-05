@@ -46,6 +46,7 @@ All literal values and variables have their own notation, so they can be faithfu
 | 3 | ```1.0f``` | Describes a floating point value. The suffix 'f' stands for 'float'. |
 | 4 | ```$variable1``` | Describes a value on the stack. Refer to "Variable notation" for their specific notation. |
 | 8 | ```"Text"``` | Describes a string, that is written as is. It will NOT be converted to a checksum. |
+| 10 | N/A | Describes a fixed size array initialised using instruction 530 and indexed via instruction 531. |
 
 ## Variable notation
 
