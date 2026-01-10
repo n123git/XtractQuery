@@ -148,7 +148,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | 500 | Was originally used to log a message in developement. Is a no-op in published games.<br>```$local1 = log("This is a message. $local2 = ", $local2);``` |
 | 501 | Formats a string using C format specifiers (e.g., %s, %d). Use %% to escape percent signs, '-' for left alignment, numbers for minimum field width etc. Supports up to 999 placeholders per call. Note: %c returns a corrupted string on an input of several chars. <br>```$local1 = format("$local2 is equal to %s and $local3 is %s.", $local2, $local3);``` |
 | 502 | Converts a UTF-8 encoded string into a UTF-16 (wide) encoded string.<br>```$local1 = utf8_to_wide("hi");``` |
-| 503 | Gets the nth char of a string. Crashes on a negative position. Resets the variable it returns to on an end position of `0`. <br>```$local1 = substring("This message", 5); // returns "m" ``` |
+| 503 | Gets the nth char of a string. Resets the variable it returns to on an out of range or negative index. <br>```$local1 = substring("This message", 5); // returns "m" ``` |
 
 #### Arrays
 | Type | Description |
