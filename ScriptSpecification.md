@@ -14,7 +14,7 @@ MyFunction($param0, $param1, ...)
   ...
 }
 ```
-
+> Note: all elements of a script must be contained within a function, with the exception of whitespace and comments as they are ignored past tokenisation. Additionally, functions cannot contain other functions and jump labels (See next section) are function-scoped.
 ## Jumps
 
 Jumps in the script are string literals suffixed by a colon `:` above an instruction. An instruction can have multiple labels. If called by any operation, that can execute a jump (see "Instructions" > "Jumps") the function will jump to that instruction and continue execution there.<br>
