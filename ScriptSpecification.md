@@ -7,7 +7,7 @@ It also describes its relation to the instruction types read from the format, as
 
 ## Functions
 
-Functions in the script are a finite sequence of instructions to be executed. Some instructions can jump to labels to immitate higher level programming concepts, like ``if ... else ...`` or loops. A function always has a name consisting of only lower- and uppercase letters and alphanumerical digits. A function can have up to 1000 parameters to pass into. Which in the function signature are comma-seperated blocks that cannot have trailing commas e.g. `($param0, $param1, ...)`.<br>
+Functions in the script are a finite sequence of instructions to be executed. Some instructions can jump to labels to immitate higher level programming concepts, like ``if ... else ...`` or loops. A function always has a name consisting of only lower- and uppercase letters and alphanumerical digits. A function can have up to 1000 parameters to pass into. Within in the function signature, parameters are defined by comma-seperated blocks that cannot have trailing commas e.g. `($param0, $param1, ...)`.<br>
 ```
 MyFunction($param0, $param1, ...)
 {
