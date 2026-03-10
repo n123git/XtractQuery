@@ -83,10 +83,10 @@ Everything after the number will be ignored for compilation and follows no speci
 #### Jumps
 | Type | Description |
 | - | - |
-| 30 | If the value equates to ``true``, jump to the label in the current function.<br>```if 1 goto "Label1"h;```<br>```if $variable0 goto "Label1"h;``` |
+| 30 | If the value equates to ``true``, jump to the label in the current function.<br>```if 1 goto "Label1"h;```<br>```if $object0 goto "Label1"h;``` |
 | 31 | Unconditionally jump to the label in the current function.<br>If multiple labels are specified, the instruction jumps unconditionally to one random label.<br>```goto "Label1"h;```<br>```goto "Label1"h, "Label2"h;``` |
-| 32 | If the value equates to ``true``, jump to the label in the current function.<br>```if 0 goto "Label1"h;```<br>```if $variable0 goto "Label1"h;``` |
-| 33 | If the negated value equates to ``true``, jump to the label in the current function.<br>Decompilation prefers the operator `not`.<br>Compilation accepts operators `not` and `!`.<br>```if not 0 goto "Label1"h;```<br>```if not $variable0 goto "Label1"h;``` |
+| 32 | If the value equates to ``true``, jump to the label in the current function.<br>```if 0 goto "Label1"h;```<br>```if $object0 goto "Label1"h;``` |
+| 33 | If the negated value equates to ``true``, jump to the label in the current function.<br>Decompilation prefers the operator `not`.<br>Compilation accepts operators `not` and `!`.<br>```if not 0 goto "Label1"h;```<br>```if not $object0 goto "Label1"h;``` |
 > Note: Differences between instruction 30 and instruction 32 are unclear.
 
 #### Basic assignments and operations
@@ -146,7 +146,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | Type | Description |
 | - | - |
 | 500 | Was originally used to log a message in developement. Is a no-op in published games.<br>```$local1 = log("This is a message. $local2 = ", $local2);``` |
-| 501 | Formats a string using C format specifiers (e.g., %s, %d). Use %% to escape percent signs, '-' for left alignment, numbers for minimum field width etc. Supports up to 999 placeholders per call. Note: %c returns a corrupted string on an input of several chars. <br>```$local1 = format("$local2 is equal to %s and $local3 is %s.", $local2, $local3);``` |
+| 501 | Formats a string using C format specifiers (e.g., %s, %d). Use %% to escape percent signs, '-' for left alignment, numbers for minimum field width etc. Supports up to 999 placeholders per call. Note: %c returns a corrupted string on an input of several chars. <br>```$local1 = format("$local2 is equal to %s and $local3 is %s. This is done via %%s", $local2, $local3);``` |
 | 502 | Converts a UTF-8 encoded string into a UTF-16 (wide) encoded string.<br>```$local1 = utf8_to_wide("hi");``` |
 | 503 | Gets the nth char of a string. Returns `undefined` on an out of range or negative index. <br>```$local1 = substring("This message", 5); // returns "m" ``` |
 
