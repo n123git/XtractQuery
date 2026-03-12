@@ -47,7 +47,7 @@ All literal values and variables have their own notation, so they can be faithfu
 | 3 | ```1.0f``` | Describes a floating point value. The suffix 'f' stands for 'float'. |
 | 4 | ```$variable1``` | Describes a value on the stack. Refer to "Variable notation" for their specific notation. |
 | 8 | ```"Text"``` | Describes a multi-line string, that is written as is. It will NOT be converted to a checksum. Escape sequences (`\`) are supported. |
-| 10 |  N/A | Describes a fixed size array initialised using instruction 530 and indexed via instruction 531. |
+| 10 |  N/A | Describes a fixed size reference-type array initialised using instruction 530 and indexed via instruction 531. |
 
 ## Variable notation
 
@@ -154,7 +154,7 @@ Everything after the number will be ignored for compilation and follows no speci
 | Type | Description |
 | - | - |
 | 530 | Creates a new multi-dimensional array.<br>```$local1 = new[2];```<br>```$local1 = new[2][1];``` |
-| 531 | Gets a reference to the indexed element in an array. Non-numeric indexes get coerced to `0`. <br>```$local1 = $local2[0]; // accesses index 0 of $local2```<br>```$local1 = $local2["hi"]; // equivalent to $local1 = $local2[0];``` |
+| 531 | Gets a reference to the indexed element in an array. Non-numeric indexes get coerced to `0`. Out of bounds access returns `undefined`. <br>```$local1 = $local2[0]; // accesses index 0 of $local2```<br>```$local1 = $local2["hi"]; // equivalent to $local1 = $local2[0];``` |
 
 The array index notation can be used in all shorthand assignments of type 240 - 271. They can not be directly used in operations of type 110 - 171. You need to use operation 531 to get an array element and set it to another variable to use them in those operations.
 
