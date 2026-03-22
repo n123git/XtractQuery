@@ -81,11 +81,13 @@ Everything after the number will be ignored for compilation and follows no speci
 | 21 | Alias for instruction 20; due to some hardcoding within XtractQuery it is currently *not* recommended to use this alias.                                                                                                                                                                                   |
 
 #### Jumps
+Note that an instruction that jumps to a label that does not exist within the function acts as a no-op.
+
 | Type | Description |
 | - | - |
 | 30 | If the value equates to ``true``, jump to the label in the current function.<br>```if 1 goto "Label1"h;```<br>```if $object0 goto "Label1"h;``` |
 | 31 | Unconditionally jump to the label in the current function.<br>If multiple labels are specified, the instruction jumps unconditionally to one random label.<br>```goto "Label1"h;```<br>```goto "Label1"h, "Label2"h;``` |
-| 32 | If the value equates to ``true``, jump to the label in the current function. An instruction that jumps to a label that does not exist within the function acts as a no-op.<br>```if 0 goto "Label1"h;```<br>```if $object0 goto "Label1"h;``` |
+| 32 | If the value equates to ``true``, jump to the label in the current function.<br>```if 0 goto "Label1"h;```<br>```if $object0 goto "Label1"h;``` |
 | 33 | If the negated value equates to ``true``, jump to the label in the current function.<br>Decompilation prefers the operator `not`.<br>Compilation accepts operators `not` and `!`.<br>```if not 0 goto "Label1"h;```<br>```if not $object0 goto "Label1"h;``` |
 > Note: Differences between instruction 30 and instruction 32 are unclear.
 
